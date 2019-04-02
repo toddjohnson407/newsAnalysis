@@ -1,5 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-// collect historical technical analysis data
+// collect historical technical analysis data for stock graphing
+// @toddjohnson
 
 const stockdata = require('stock-data.js');
 
@@ -23,7 +24,7 @@ async function createGraph(stockDataPoints, startDate, endDate, ticker) {
 
   var sentiment = await runAnalytics(dates);
   console.log('sentiment:', sentiment);
-  console.log(JSON.stringify(sentiment));
+  console.log(Object.keys(sentiment));
 
   var sentimentArray = Object.keys(sentiment).map(function(key) {
     return [key, sent[key]]
