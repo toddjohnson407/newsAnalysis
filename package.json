@@ -1,0 +1,20 @@
+{
+  "name": "newsanalysis",
+  "version": "1.0.0",
+  "description": "News Sentiment Analysis",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "toddjohnson",
+  "license": "ISC",
+  "dependencies": {
+    "brfs": "^2.0.2",
+    "browserify-fs": "^1.0.0",
+    "express": "^4.16.4",
+    "file-system": "^2.2.2",
+    "newsapi": "^2.4.0",
+    "node-fetch": "^2.3.0",
+    "nouislider": "^13.1.4"
+  }
+}
