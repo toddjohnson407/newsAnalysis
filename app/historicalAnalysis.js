@@ -11,6 +11,87 @@ var update = document.getElementById('submit-button');
 
 stockDataPoints = {};
 
+// stores user selected dates for later sentiment analysis
+var datesVisual = [];
+
+// converts dates to ms
+var msDates = function(date) {
+    var year = parseInt(date.substr(0, 4));
+    var month = parseInt(date.substr(5, 2));
+    var day = parseInt(date.substr(8));
+
+    var date = new Date(year, month, day);
+    var ms = date.valueOf() / 10000000;
+    return ms;
+}
+
+var calculateDerivatives = async function(sentimentPrices, sentimentDates, technicalPrices, technicalDates) {
+  // arrays to store technical and sentiment derivative points
+  var derivatives = [];
+  var technicalDerivatives = [];
+  var sentimentDerivatives = [];
+
+  for (var i = 0; i < technicalPrices.length; i++) {
+    if (i == 0) {
+      var upperY = technicalPrices[i + 1];
+      var lowerY = technicalPrices[i];
+      var upperX = msDates(technicalDates[i + 1])
+      var lowerX = msDates(technicalDates[i]);
+
+      var slope = ((upperY - lowerY) * (upperX - lowerX));
+      technicalDerivatives.push(slope);
+    } else if (i == technicalPrices.length - 1) {
+      var upperY = technicalPrices[i];
+      var lowerY = technicalPrices[i - 1];
+      var upperX = msDates(technicalDates[i])
+      var lowerX = msDates(technicalDates[i - 1]);
+
+      var slope = ((upperY - lowerY) * (upperX - lowerX));
+      technicalDerivatives.push(slope);
+    } else if (i != 0 && i < technicalPrices.length - 1) {
+      var upperY = technicalPrices[i + 1];
+      var lowerY = technicalPrices[i - 1];
+      var upperX = msDates(technicalDates[i + 1])
+      var lowerX = msDates(technicalDates[i - 1]);
+
+      var slope = ((upperY - lowerY) * (upperX - lowerX));
+      technicalDerivatives.push(slope);
+    }
+  }
+  // console.log(technicalDerivatives);
+
+  for (var i = 0; i < sentimentPrices.length; i++) {
+    if (i == 0) {
+      var upperY = sentimentPrices[i + 1];
+      var lowerY = sentimentPrices[i];
+      var upperX = msDates(sentimentDates[i + 1])
+      var lowerX = msDates(sentimentDates[i]);
+
+      var slope = ((upperY - lowerY) * (upperX - lowerX));
+      sentimentDerivatives.push(slope);
+    } else if (i == sentimentPrices.length - 1) {
+      var upperY = sentimentPrices[i];
+      var lowerY = sentimentPrices[i - 1];
+      var upperX = msDates(sentimentDates[i])
+      var lowerX = msDates(sentimentDates[i - 1]);
+
+      var slope = ((upperY - lowerY) * (upperX - lowerX));
+      sentimentDerivatives.push(slope);
+    } else if (i != 0 && i < sentimentPrices.length - 1) {
+      var upperY = sentimentPrices[i + 1];
+      var lowerY = sentimentPrices[i - 1];
+      var upperX = msDates(sentimentDates[i + 1])
+      var lowerX = msDates(sentimentDates[i - 1]);
+
+      var slope = ((upperY - lowerY) * (upperX - lowerX));
+      sentimentDerivatives.push(slope);
+    }
+  }
+  // console.log(sentimentDerivatives);
+  derivatives = [technicalDerivatives, sentimentDerivatives];
+  return derivatives;
+}
+
 async function createGraph(stockDataPoints, startDate, endDate, ticker) {
 
   var prices = [];
@@ -22,60 +103,128 @@ async function createGraph(stockDataPoints, startDate, endDate, ticker) {
     prices.push(price);
   }
 
-  var sentiment = await runAnalytics(dates);
-  console.log('sentiment:', sentiment);
-  console.log(Object.keys(sentiment));
+  var sentiment = await runAnalytics(ticker, datesVisual);
 
-  var sentimentArray = Object.keys(sentiment).map(function(key) {
-    return [key, sent[key]]
-  })
+  var resSentiment = Promise.resolve(sentiment);
 
-  var sentimentPrices = [];
-  var sentimentDates = Object.keys(sentimentArray).sort();
-  // console.log(sentimentDates);
-  for (var i = 0; i < sentimentDates.length; i++) {
-    var matchedDate = sentimentDates[i];
-    var sentPrice = sentimentArray[matchedDate];
-    console.log(sentPrice);
-    sentimentPrices.push(sentPrice);
-  }
+  resSentiment.then(async function(value) {
 
-  console.log('sentimentArray:', sentimentArray);
-  console.log('stockDataPoints:', stockDataPoints);
-
-  var technicalTrace = {
-    type: "scatter",
-    mode: "lines",
-    name: `${ticker}`,
-    x: dates,
-    y: prices,
-    line: {color: '#17BECF'}
-  }
-
-  // var sentimentTrace = {
-  //   type: "scatter",
-  //   mode: "lines",
-  //   name: `${ticker}`,
-  //   x: sentimentDates,
-  //   y: sentimentPrices,
-  //   line: {color: '#17BECF'}
-  // }
-
-  var data = [technicalTrace];
-
-  var layout = {
-    title: `${ticker} Historical Analysis`,
-    xaxis: {
-      range: [startDate, endDate],
-      type: 'date'
-    },
-    yaxis: {
-      autorange: true,
-      range: [50, 300],
-      type: 'linear'
+    var sentimentPrices = [];
+    var sentimentDates = Object.keys(value).sort();
+    for (var i = 0; i < sentimentDates.length; i++) {
+      var matchedDate = sentimentDates[i];
+      var sentPrice = value[matchedDate];
+      sentimentPrices.push(sentPrice);
     }
-  };
-  Plotly.newPlot('hist-graph', data, layout);
+
+    console.log('Sentiment Prices:', sentimentPrices);
+    console.log('Sentiment Dates:', sentimentDates);
+
+    console.log(value);
+
+    var technicalTrace = {
+      type: "scatter",
+      mode: "lines",
+      name: `${ticker}`,
+      x: dates,
+      // y: value[0],
+      y: prices,
+      line: {color: '#17BECF'}
+    }
+
+    var sentimentTrace = {
+      type: "scatter",
+      mode: "lines",
+      name: `ARTCL`,
+      x: sentimentDates,
+      // y: value[1],
+      y: sentimentPrices,
+      yaxis: 'y2',
+      line: {color: '#FF4501'}
+    }
+
+    var data = [technicalTrace, sentimentTrace];
+
+    var layout = {
+      title: `${ticker} Historical Analysis`,
+      width: 565,
+      height: 360,
+      xaxis: {
+        range: [startDate, endDate],
+        type: 'date'
+      },
+      yaxis: {
+        title: 'Stock Price',
+        autorange: true,
+        range: [50, 400],
+        type: 'linear'
+      },
+      yaxis2: {
+        title: 'Sentiment',
+        titlefont: {color: 'rgb(148, 103, 189)'},
+        tickfont: {color: 'rgb(148, 103, 189)'},
+        overlaying: 'y',
+        side: 'right',
+        range: [-10, 10],
+        type: 'linear'
+      }
+    };
+
+    Plotly.newPlot('hist-graph', data, layout);
+
+    let derivativePoints = await calculateDerivatives(sentimentPrices, sentimentDates, prices, dates);
+
+    var resDerivatives = Promise.resolve(derivativePoints);
+
+    resDerivatives.then(function(value) {
+      var technicalTrace = {
+        type: "scatter",
+        mode: "lines",
+        name: `${ticker}`,
+        x: dates,
+        y: value[0],
+        line: {color: '#17BECF'}
+      }
+
+      var sentimentTrace = {
+        type: "scatter",
+        mode: "lines",
+        name: `ARTCL`,
+        x: sentimentDates,
+        y: value[1],
+        yaxis: 'y2',
+        line: {color: '#FF4501'}
+      }
+
+      var data = [technicalTrace, sentimentTrace];
+
+      var layout = {
+        title: `${ticker} Derivative Analysis`,
+        width: 565,
+        height: 360,
+        xaxis: {
+          range: [startDate, endDate],
+          type: 'date'
+        },
+        yaxis: {
+          title: 'Technical Deriv.',
+          autorange: true,
+          range: [50, 400],
+          type: 'linear'
+        },
+        yaxis2: {
+          title: 'Sentiment Deriv.',
+          titlefont: {color: 'rgb(148, 103, 189)'},
+          tickfont: {color: 'rgb(148, 103, 189)'},
+          overlaying: 'y',
+          side: 'right',
+          type: 'linear'
+        }
+      };
+
+      Plotly.newPlot('deriv-graph', data, layout);
+    });
+  });
 }
 
 
@@ -86,6 +235,9 @@ var setDays = [7, 14, 21, 28];
 
 var collectData = function(day, month, year, ticker) {
   var date = `${year}-${month}-${day}`;
+
+  // push date to array for later sentiment analysis
+  datesVisual.push(date);
 
   stockdata.historicalDay({
     symbols: `${ticker}`,
@@ -161,15 +313,8 @@ function renderData(submit) {
   endDate = data[2].getAttribute('value');
   let formatData = mill => {
     let date = new Date(Math.floor(Number(mill)));
-    // return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
     return date;
   }
-
-  // document.getElementById('graph-data').innerHTML = `
-  //   Company: ${data[0].value}</br>
-  //   Start-Date: ${formatData(data[1].getAttribute('value'))}</br>
-  //   End-Date: ${formatData(data[2].getAttribute('value'))}
-  // `;
 
   var tickerSymbol = data[0].value;
   var start = formatData(startDate);

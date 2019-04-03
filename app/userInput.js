@@ -1,8 +1,7 @@
-const mkCompanyOptn = (display, ticker) => ({'display':display, 'ticker':ticker});
+// create visual sliders and input form for users
+// @jakejohnson
 
-// var submitAnalysis = document.getElementById("submit-button");
-// console.log(submitAnalysis);
-var milli;
+const mkCompanyOptn = (display, ticker) => ({'display':display, 'ticker':ticker});
 
 const COMPANY_OPTIONS = [
   mkCompanyOptn('Apple Inc.', 'AAPL'),
@@ -17,6 +16,8 @@ const MONTHS = [
   'Jan','Feb','Mar','Apr','May','June',
   'July','Aug','Sept','Oct','Nov','Dec',
 ]
+
+var milli;
 
 document.__proto__.customCreateElement = function (tag, attrs, innerHTML) {
   let element = document.createElement(tag);
@@ -48,12 +49,12 @@ let createDateSlider = function () {
   let todayNoon = new Date()
   todayNoon.setHours(12);
   let getLastMonday = time => new Date(time).getDay() === 1 ? time : getLastMonday(time - 24 * 60 * 60 * 1000);
-  let maxDate = getLastMonday(todayNoon.getTime() - weekIntvl);
+  let maxDate = getLastMonday(todayNoon.getTime());
 
   noUiSlider.create(slider, {
     range: {
       'min': maxDate - 50 * weekIntvl,
-      'max': maxDate - weekIntvl,
+      'max': maxDate,
     },
     step: weekIntvl,
     start: [maxDate - 30 * weekIntvl, maxDate],

@@ -1,58 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sentiment Analysis Forecast</title>
+  <title>Stock Data Analysis</title>
   <script type="text/javascript" src="nouislider.js"></script>
   <script type="text/javascript" src="userInput.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <link rel="stylesheet" type="text/css" href="nouislider.css">
   <link rel="stylesheet" type="text/css" href="app.css">
 </head>
+
 <body>
   <div id="content">
+
     <div id="banner">
       <div id="title">Sentiment Analysis of Stock Market</div>
     </div>
+
     <div id="main-content">
-      <div id="title">Analyze Some Stuff</div>
-      <div id="description">Use this to analyze some stuff. Including and limited to stock data and news article sentiment ratings. It's not very good right now so I would definitely only use paperstocks for roughly forever.</div>
-      <div id="actual-content">
-        <div>™
-          <form action="">
-            <div id="form-container" class="form-container">
-              <div class="input-container company">
-                <div class="input-title">Company:</div>
-                <select class="form-data inset">
-                  <option value="" disabled>-- Choose Company --</option>
-                </select>
-              </div>
-              <div class="input-container date-range">
-                <div class="input-title">Date Range:</div>
-                <div class="range-values">
-                  <div id="range-value-low" class="range-value form-data" style="text-align:right;"></div>
-                  <div style="text-align:center;">&ndash;</div>
-                  <div id="range-value-high" class="range-value form-data" style="text-align:left;"></div>
-                </div>
-                <div id="date-range" class="range inset"></div>
-              </div>
-              <div id="submit-button" class="submit-button" onclick="sendData();">
-                <div class="text">Update</div>
-              </div>
+      <form id="input-form" action="">
+        <div id="form-container" class="form-container">
+          <div class="input-container company">
+            <div class="input-title">Company:</div>
+            <select class="form-data inset">
+              <option value="" disabled>-- Choose Company --</option>
+            </select>
+          </div>
+          <div class="input-container date-range">
+            <div class="input-title">Date Range:</div>
+            <div class="range-values">
+              <div id="range-value-low" class="range-value form-data" style="text-align:right;"></div>
+              <div style="text-align:center;">&ndash;</div>
+              <div id="range-value-high" class="range-value form-data" style="text-align:left;"></div>
             </div>
-          </form>
+            <div id="date-range" class="range inset"></div>
+          </div>
+          <div id="submit-button" class="submit-button" onclick="sendData();">
+            <div class="text">Update</div>
+          </div>
         </div>
+      </form>
 
-        <div id="graph" class="graph">
-          <div id="hist-graph" style="width:700px;height:45
-
-          <div id="graph-data"style="font-size:60%;"></div>
-        </div>
-
+      <div id="graphs">
+        <div id="hist-graph" class="graph"></div>
+        <div id="deriv-graph" class="graph"></div>
       </div>
     </div>
   </div>
+
   <footer id="footer">SENTIMENT ANALYSIS</footer>
-  <script type="text/javascript" src="sentimentAnalysis.js"></script>
+  <script type="text/javascript" src="sentiment.js"></script>
   <script type="text/javascript" src="historicalAnalysis.js"></script>
 </body>
 </html>
